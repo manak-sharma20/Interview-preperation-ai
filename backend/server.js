@@ -9,6 +9,9 @@ const connectDB = require("./config/db");
 
 const authRoutes = require('./Routes/authRoutes')
 const sessionRoutes = require('./Routes/sessionRoutes')
+const questionRoutes = require('./Routes/questionRoutes')
+const {generateInterviewQuestions,generateConceptExplaination} = require("./controllers/aiController");
+const { protect } = require("./middlewares/authMiddleware");
 const app = express();
 
 //middleware to handle CORS 
@@ -32,9 +35,9 @@ app.use(express.json());
 //ROUTES
 app.use("/api/auth",authRoutes);
 app.use("/api/sessions",sessionRoutes);
-// app.use("/api/questions",questionRoutes);
-// app.use("/api/ai/generated-questions",protect,generateInterviewQuestions);
-// app.use("/api/ai/generated-explaination",protect,generateConceptExplanation);
+app.use("/api/questions",questionRoutes);
+app.use("/api/ai/generated-questions",protect,generateInterviewQuestions);
+app.use("/api/ai/generated-explanation",protect,generateConceptExplaination);
 
 
 
