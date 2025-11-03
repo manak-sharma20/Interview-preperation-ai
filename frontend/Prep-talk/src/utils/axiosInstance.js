@@ -13,7 +13,7 @@ axiosInstance.interceptors.request.use(
     async config => {
         const token = localStorage.getItem("token");
         if (token) {
-            config.headers["Authorization"] = `Bearer ${accessToken}`;
+            config.headers["Authorization"] = `Bearer ${token}`;
         }
         return config;
     },
@@ -36,6 +36,9 @@ axiosInstance.interceptors.response.use(
                 console.log("Request Timeout")
             }
             return Promise.reject(error);
-        }}
-    );
+        }
+    }
+);
+
+export default axiosInstance;
  

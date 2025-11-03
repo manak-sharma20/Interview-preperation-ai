@@ -1,25 +1,36 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import Button from '../../components/Button';
-import Input from '../../components/Inputs/Input';
+import { Link, useNavigate } from 'react-router-dom';
+import axiosInstance from '../../utils/axiosInstance';
+import { API_PATHS } from '../../utils/apiPaths';
 
-function Login() {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+const Login = ({ setCurrentPage }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log('Login data:', formData);
+
+    try {
+      const response = await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
+        email,
+        password,
+      });
+
+      const token = response.data?.token;
+      if (token) {
+        localStorage.setItem('token', token);
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else {
+        setError('Something went wrong. Please try again later.');
+      }
+    }
   };
 
   return (
@@ -30,14 +41,14 @@ function Login() {
           <p className="auth-subtitle">Sign in to your PrepTalk account</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="auth-form">
+        <form onSubmit={handleLogin} className="auth-form">
           <Input
             label="Email"
             type="email"
             name="email"
             placeholder="Enter your email"
-            value={formData.email}
-            onChange={handleChange}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
 
@@ -46,10 +57,12 @@ function Login() {
             type="password"
             name="password"
             placeholder="Enter your password"
-            value={formData.password}
-            onChange={handleChange}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
           />
+
+          {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
           <div style={{ marginBottom: '24px' }}>
             <Link to="/forgot-password" className="auth-link">
@@ -57,14 +70,19 @@ function Login() {
             </Link>
           </div>
 
-          <Button type="submit" size="large" className="btn-full" style={{ marginBottom: '24px' }}>
+          <Button
+            type="submit"
+            size="large"
+            className="btn-full"
+            style={{ marginBottom: '24px' }}
+          >
             Sign In
           </Button>
         </form>
 
         <div className="auth-footer">
           <p className="auth-footer-text">
-            Don't have an account?{' '}
+            Don’t have an account?{' '}
             <Link to="/signUp" className="auth-footer-link">
               Sign up
             </Link>
@@ -73,6 +91,6 @@ function Login() {
       </div>
     </div>
   );
-}
+};
 
 export default Login;
