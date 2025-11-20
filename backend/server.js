@@ -1,23 +1,20 @@
-require ("dotenv").config();
-
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, ".env") });
-const { connect } = require("http2");
 const connectDB = require("./config/db");
 
-const authRoutes = require('./Routes/authRoutes')
-const sessionRoutes = require('./Routes/sessionRoutes')
-const questionRoutes = require('./Routes/questionRoutes')
-const {generateInterviewQuestions,generateConceptExplaination} = require("./controllers/aiController");
+const authRoutes = require('./Routes/authRoutes');
+const sessionRoutes = require('./Routes/sessionRoutes');
+const questionRoutes = require('./Routes/questionRoutes');
+const aiRoutes = require('./Routes/aiRoutes'); // Import AI routes
 const { protect } = require("./middlewares/authMiddleware");
 const app = express();
 
 //middleware to handle CORS 
 app.use(cors({
     origin:"*",
-    methods:["GET","POST","PUSH","DELETE"],
+    methods:["GET","POST","PUT","DELETE"],
     allowedHeaders:["Content-Type","Authorization"]
 }))
 
@@ -36,8 +33,7 @@ app.use(express.json());
 app.use("/api/auth",authRoutes);
 app.use("/api/sessions",sessionRoutes);
 app.use("/api/questions",questionRoutes);
-app.use("/api/ai/generated-questions",protect,generateInterviewQuestions);
-app.use("/api/ai/generated-explanation",protect,generateConceptExplaination);
+app.use("/api/ai", aiRoutes); // Use AI routes
 
 
 

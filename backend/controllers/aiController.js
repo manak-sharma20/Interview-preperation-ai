@@ -1,8 +1,8 @@
-const {GoogleGenAI}= require("@google/genai")
+const {GoogleGenerativeAI}= require("@google/generative-ai")
 const {conceptExplainPrompt, questionAnswerPrompt}= require("../utils/prompts");
 
 
-const ai = new GoogleGenAI({apiKey:process.env.GEMINI_API_KEY})
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 
 const generateInterviewQuestions= async(req,res)=>{
@@ -13,13 +13,11 @@ const generateInterviewQuestions= async(req,res)=>{
                 message:"All fields are required: role, experience, topicsToFocus, numberOfQuestions",
             });
         }
-        const Prompt= questionAnswerPrompt(role,experience,topicsToFocus,numberOfQuestions);
-        const response= await ai.models.generateContent({
-            model:"gemini-2.0-flash-lite",
-            prompt:Prompt,
-
-        });
-        let rawText=response.response.text();
+        const prompt= questionAnswerPrompt(role,experience,topicsToFocus,numberOfQuestions);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        let rawText = response.text();
         const cleanText=rawText.replace(/^```json\s*/,"").replace(/```$/,"")
         .trim();
 
@@ -37,8 +35,6 @@ const generateInterviewQuestions= async(req,res)=>{
     }
 }
 
-
-
 const generateConceptExplaination = async(req,res)=>{
     try{
         const {question}= req.body;
@@ -47,13 +43,11 @@ const generateConceptExplaination = async(req,res)=>{
                 message:"Question field is required",
             });
         }
-        const Prompt= conceptExplainPrompt(question);
-        const response= await ai.models.generateContent({
-            model:"gemini-2.0-flash-lite",
-            prompt:Prompt,
-            
-        });
-        let rawText=response.text;
+        const prompt= conceptExplainPrompt(question);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        let rawText = response.text();
         const cleanText=rawText.replace(/^```json\s*/,"").replace(/```$/,"")
         .trim();
         const data= JSON.parse(cleanText);
@@ -61,7 +55,7 @@ const generateConceptExplaination = async(req,res)=>{
 
     }
     catch(error){res.status(500).json({
-        message:"Failed to generate interview questions",
+        message:"Failed to generate concept explanation",
         error:error.message,})
 
     }

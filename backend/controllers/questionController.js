@@ -23,11 +23,11 @@ exports.addQuestionsToSession = async(req,res)=>{
         //Update session with new question IDs
         session.questions.push(...createdQuestions.map((q)=>q._id))
         await session.save();
-        res.status(201).json(createdQuestions)
+        res.status(201).json({success: true, questions: createdQuestions})
 
     }
     catch(error){
-        res.status(500).json({message:"Server Error"});
+        res.status(500).json({success: false, message:"Server Error", error: error.message});
     }
 }
 
@@ -44,7 +44,7 @@ exports.togglePinQuestion = async(req,res)=>{
 
     }
     catch(error){
-        res.status(500).json({message:"Server Error"});
+        res.status(500).json({success: false, message:"Server Error", error: error.message});
     }
 }
 
@@ -64,6 +64,6 @@ exports.updateQuestionNote = async(req,res)=>{
 
     }
     catch(error){
-        res.status(500).json({message:"Server Error"});
+        res.status(500).json({success: false, message:"Server Error", error: error.message});
     }
 }
