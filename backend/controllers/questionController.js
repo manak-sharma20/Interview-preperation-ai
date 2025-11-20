@@ -1,69 +1,114 @@
-const Question=require ("../models/Question");
-const Session=require("../models/Session");
+const Question = require("../models/Question");
+const Session = require("../models/Session");
 
+// ---------------- Add Questions to Session ---------------- //
+exports.addQuestionsToSession = async (req, res) => {
+  try {
+    const { sessionId, questions } = req.body;
 
-
-exports.addQuestionsToSession = async(req,res)=>{
-    try{
-        const{sessionId,questions}=req.body;
-        if (!sessionId || !questions || !Array.isArray(questions)){
-            return res.status(400).json({message:"Invalid input"});
-        }
-        const session = await Session.findById(sessionId)
-        if(!session){
-            return res.status(404).json({message:"Session not found"});
-
-        }
-        //Create new Questions
-        const createdQuestions= await Question.insertMany(questions.map(q=>({
-            session:sessionId,
-            question:q.question,
-            answer:q.answer,
-        })));
-        //Update session with new question IDs
-        session.questions.push(...createdQuestions.map((q)=>q._id))
-        await session.save();
-        res.status(201).json({success: true, questions: createdQuestions})
-
+    if (!sessionId || !Array.isArray(questions) || questions.length === 0) {
+      return res.status(400).json({
+        message: "sessionId and questions array are required",
+      });
     }
-    catch(error){
-        res.status(500).json({success: false, message:"Server Error", error: error.message});
+
+    // Validate session
+    const session = await Session.findById(sessionId);
+    if (!session) {
+      return res.status(404).json({ message: "Session not found" });
     }
-}
 
-
-exports.togglePinQuestion = async(req,res)=>{
-    try{
-        const question=await Question.findById(req.params.id);
-        if(!question){
-            return res.status(404).json({message:"Question not found"});
-        }
-        question.isPinned=!question.isPinned;
-        await question.save();
-        res.status(200).json({success:true,question})
-
+    // Validate each question object
+    for (const q of questions) {
+      if (!q.question || !q.answer) {
+        return res.status(400).json({
+          message: "Each question must contain { question, answer }",
+        });
+      }
     }
-    catch(error){
-        res.status(500).json({success: false, message:"Server Error", error: error.message});
+
+    // Create questions
+    const createdQuestions = await Question.insertMany(
+      questions.map(q => ({
+        session: sessionId,
+        question: q.question,
+        answer: q.answer,
+      }))
+    );
+
+    // Add question IDs to session
+    session.questions.push(...createdQuestions.map(q => q._id));
+    await session.save();
+
+    return res.status(201).json({
+      success: true,
+      questions: createdQuestions,
+    });
+  } catch (error) {
+    console.error("Add questions error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: error.message,
+    });
+  }
+};
+
+// ---------------- Toggle Pin Question ---------------- //
+exports.togglePinQuestion = async (req, res) => {
+  try {
+    const question = await Question.findById(req.params.id);
+
+    if (!question) {
+      return res.status(404).json({ message: "Question not found" });
     }
-}
 
+    // Toggle pin status
+    question.isPinned = !question.isPinned;
+    await question.save();
 
-exports.updateQuestionNote = async(req,res)=>{
-    try{
-        const {note}=req.body;
-        const question= await Question.findById(req.params.id);
-        if (!question){
-            return res.status(404).json({message:"Question not found"});
-        }
-        question.note=note ||"";
-        await question.save();
-        res.status(200).json({success:true,question});
+    return res.status(200).json({
+      success: true,
+      question,
+    });
+  } catch (error) {
+    console.error("Pin toggle error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: error.message,
+    });
+  }
+};
 
+// ---------------- Update Question Note ---------------- //
+exports.updateQuestionNote = async (req, res) => {
+  try {
+    const { note } = req.body;
 
-
+    if (typeof note === "undefined") {
+      return res.status(400).json({ message: "Note field is required" });
     }
-    catch(error){
-        res.status(500).json({success: false, message:"Server Error", error: error.message});
+
+    const question = await Question.findById(req.params.id);
+
+    if (!question) {
+      return res.status(404).json({ message: "Question not found" });
     }
-}
+
+    question.note = note.trim();
+    await question.save();
+
+    return res.status(200).json({
+      success: true,
+      question,
+    });
+  } catch (error) {
+    console.error("Note update error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: error.message,
+    });
+  }
+};

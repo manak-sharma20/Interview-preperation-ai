@@ -1,87 +1,152 @@
 const Session = require("../models/Session");
 const Question = require("../models/Question");
 
-// Create a new session
-
+// ------------------- Create a New Session ------------------- //
 exports.createSession = async (req, res) => {
-    try {
-        const { role, experience, topicsToFocus, description, questions } = req.body;
-        const userId = req.user.id;
+  try {
+    const { role, experience, topicsToFocus, description, questions } = req.body;
 
-        // Create the session
-        const session = await Session.create({
-            user: userId,
-            role,
-            experience,
-            topicsToFocus,
-            description,
+    if (!role || !experience || !topicsToFocus) {
+      return res.status(400).json({
+        success: false,
+        message: "role, experience, and topicsToFocus are required",
+      });
+    }
+
+    if (!Array.isArray(questions) || questions.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Questions array is required",
+      });
+    }
+
+    for (const q of questions) {
+      if (!q.question || !q.answer) {
+        return res.status(400).json({
+          success: false,
+          message: "Each question must contain { question, answer }",
         });
-
-        // Create the questions and get their IDs
-        const questionIds = await Promise.all(
-            questions.map(async (q) => {
-                const newQuestion = await Question.create({
-                    session: session._id,
-                    question: q.question,
-                    answer: q.answer,
-                });
-                return newQuestion._id;
-            })
-        );
-
-        // Update the session with the question IDs
-        session.questions = questionIds;
-        await session.save();
-
-        // Populate the questions in the session object to return
-        const populatedSession = await Session.findById(session._id).populate("questions");
-
-        res.status(201).json({ success: true, session: populatedSession });
-    } catch (error) {
-        res.status(500).json({ success: false, message: "Server Error", error: error.message });
+      }
     }
+
+    const userId = req.user.id;
+
+    // Create session entry
+    const session = await Session.create({
+      user: userId,
+      role,
+      experience,
+      topicsToFocus,
+      description: description || "",
+    });
+
+    // Create linked questions
+    const createdQuestions = await Question.insertMany(
+      questions.map((q) => ({
+        session: session._id,
+        question: q.question,
+        answer: q.answer,
+      }))
+    );
+
+    // Assign question IDs to session
+    session.questions = createdQuestions.map((q) => q._id);
+    await session.save();
+
+    // Populate for response
+    const populatedSession = await Session.findById(session._id).populate("questions");
+
+    return res.status(201).json({
+      success: true,
+      session: populatedSession,
+    });
+  } catch (error) {
+    console.error("Create session error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: error.message,
+    });
+  }
 };
-// GET all sessions for a user
 
-exports.getMySession= async(req,res)=>{
-    try{
-        const sessions = await Session.find({user:req.user.id}).sort({createdAt:-1}).populate("questions");
-        res.status(200).json({success:true,sessions})
-    }catch(error){
-        res.status(500).json({success:false,message:"Server Error", error: error.message});
+// ------------------- Get Sessions for Logged-in User ------------------- //
+exports.getMySession = async (req, res) => {
+  try {
+    const sessions = await Session.find({ user: req.user.id })
+      .sort({ createdAt: -1 })
+      .populate("questions");
+
+    return res.status(200).json({ success: true, sessions });
+  } catch (error) {
+    console.error("Get my sessions error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: error.message,
+    });
+  }
+};
+
+// ------------------- Get Session by ID ------------------- //
+exports.getSessionById = async (req, res) => {
+  try {
+    const session = await Session.findById(req.params.id)
+      .populate({
+        path: "questions",
+        options: { sort: { isPinned: -1, createdAt: 1 } },
+      })
+      .exec();
+
+    if (!session) {
+      return res.status(404).json({
+        success: false,
+        message: "Session not found",
+      });
     }
-}
 
+    return res.status(200).json({
+      success: true,
+      session,
+    });
+  } catch (error) {
+    console.error("Get session by ID error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: error.message,
+    });
+  }
+};
 
-//get a session with id by populated questions
+// ------------------- Delete Session & Its Questions ------------------- //
+exports.deleteSession = async (req, res) => {
+  try {
+    const session = await Session.findById(req.params.id);
 
-exports.getSessionById = async(req,res)=>{ try{
-    const session= await Session.findById(req.params.id).populate(
-        {
-            path:"questions",
-            options:{sort:{isPinned:-1,createdAt:1}},
-        }
-    ).exec();
-    if(!session){
-        return res.status(404).json({success:false,message:"Session not found"});
+    if (!session) {
+      return res.status(404).json({
+        success: false,
+        message: "Session not found",
+      });
     }
-    res.status(200).json({success:true,session})
-     
 
-}catch(error){
-    res.status(500).json({success:false,message:"Server Error", error: error.message});
-}}
+    // Delete all associated questions
+    await Question.deleteMany({ session: session._id });
 
-//delete a session and its questions
-
-exports.deleteSession= async(req,res)=>{ try{
-    const session= await Session.findById(req.params.id);
-    if(!session){
-        return res.status(404).json({success: false, message:"Session not found"})    }
-    await Question.deleteMany({session:session._id});
+    // Delete session itself
     await session.deleteOne();
-    res.status(200).json({success: true, message:"Session deleted successfully"})
 
-}catch(error){
-    res.status(500).json({success:false,message:"Server Error", error: error.message});
-}}
+    return res.status(200).json({
+      success: true,
+      message: "Session deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete session error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: error.message,
+    });
+  }
+};

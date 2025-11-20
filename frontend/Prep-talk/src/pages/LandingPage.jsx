@@ -1,300 +1,152 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Sparkles, LogIn, CheckCircle, TrendingUp, Feather, X, Menu } from 'lucide-react';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Sparkles, TrendingUp, Feather, CheckCircle, LogIn, Menu, X } from "lucide-react";
 
-// --- Mock Data and Utilities (Since external files are not available) ---
-
-// Placeholder image URL to simulate the hero image
+// Hero Image Placeholder
 const HERO_IMAGE_URL = "https://placehold.co/800x450/1f2937/d1d5db?text=AI+Interview+Coach";
 
-// Feature data for the main value proposition
-const APP_FEATURES = [
+// Features List
+const FEATURES = [
   {
-    icon: <Sparkles className="w-8 h-8 text-indigo-400" />,
+    icon: <Sparkles className="w-8 h-8 text-indigo-500" />,
     title: "Instant AI Feedback",
-    description: "Receive detailed, data-driven critiques on your answers, tone, and body language immediately.",
+    description:
+      "Receive detailed critiques on your responses, tone, confidence, and structure instantly.",
   },
   {
-    icon: <TrendingUp className="w-8 h-8 text-indigo-400" />,
+    icon: <TrendingUp className="w-8 h-8 text-indigo-500" />,
     title: "Performance Analytics",
-    description: "Track your progress over time with insights on confidence, clarity, and keyword optimization.",
+    description:
+      "Track progress, identify weaknesses, and improve with role-specific insights.",
   },
   {
-    icon: <Feather className="w-8 h-8 text-indigo-400" />,
-    title: "Customizable Scenarios",
-    description: "Practice behavioral, technical, and situational questions tailored to your specific role and industry.",
+    icon: <Feather className="w-8 h-8 text-indigo-500" />,
+    title: "Custom Scenarios",
+    description:
+      "Practice behavioral, HR, and technical rounds designed for your job position.",
   },
   {
-    icon: <CheckCircle className="w-8 h-8 text-indigo-400" />,
-    title: "Confidence Builder",
-    description: "Overcome interview anxiety through realistic simulation and guided confidence-boosting exercises.",
+    icon: <CheckCircle className="w-8 h-8 text-indigo-500" />,
+    title: "Confidence Booster",
+    description:
+      "Use realistic mock interviews to build clarity, fluency, and confidence.",
   },
 ];
 
-// Mock Navigation (since react-router-dom is not available)
-const useMockNavigation = () => {
-    const [route, setRoute] = useState('/');
-    const navigate = (newRoute) => setRoute(newRoute);
-    return { route, navigate };
-};
-
-
-// --- Core Components ---
-
-const AuthModal = ({ isOpen, onClose, currentPage, setCurrentPage }) => {
-  if (!isOpen) return null;
-
-  const isLogin = currentPage === "Login";
-
-  const handleAuth = (e) => {
-    e.preventDefault();
-    // Simulate API call
-    console.log(`${currentPage} attempt...`);
-    onClose();
-    // In a real app, this would navigate to the dashboard upon successful auth
-  };
+const LandingPage = () => {
+  const navigate = useNavigate();
+  const [mobileMenu, setMobileMenu] = useState(false);
 
   return (
-    <div className="fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 sm:p-8 transform scale-100 transition-transform duration-300">
-        <div className="flex justify-between items-start mb-6">
-          <h2 className="text-3xl font-bold text-gray-800">
-            {isLogin ? "Welcome Back" : "Join Interview Prep AI"}
-          </h2>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 transition">
-            <X className="w-6 h-6 text-gray-500" />
-          </button>
-        </div>
+    <div className="min-h-screen flex flex-col bg-white text-gray-900">
+      {/* Navbar */}
+      <header className="sticky top-0 bg-white shadow-sm border-b z-40">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+          <h1 className="text-2xl font-extrabold text-indigo-600">InterviewPrepAI</h1>
 
-        <div className="flex mb-6 border-b border-gray-200">
-          <button
-            onClick={() => setCurrentPage("Login")}
-            className={`flex-1 py-3 text-lg font-medium transition-colors ${
-              isLogin
-                ? "text-indigo-600 border-b-2 border-indigo-600"
-                : "text-gray-500 hover:text-indigo-600"
-            }`}
-          >
-            Log In
-          </button>
-          <button
-            onClick={() => setCurrentPage("SignUp")}
-            className={`flex-1 py-3 text-lg font-medium transition-colors ${
-              !isLogin
-                ? "text-indigo-600 border-b-2 border-indigo-600"
-                : "text-gray-500 hover:text-indigo-600"
-            }`}
-          >
-            Sign Up
-          </button>
-        </div>
-
-        <form onSubmit={handleAuth} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="email">Email</label>
-            <input
-              id="email"
-              type="email"
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition"
-              placeholder="you@example.com"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition"
-              placeholder="••••••••"
-            />
-          </div>
-
-          {!isLogin && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="confirm-password">Confirm Password</label>
-              <input
-                id="confirm-password"
-                type="password"
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition"
-                placeholder="••••••••"
-              />
-            </div>
-          )}
-
-          <button
-            type="submit"
-            className="w-full py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/50"
-          >
-            {isLogin ? "Log In Securely" : "Create Account"}
-          </button>
-        </form>
-      </div>
-    </div>
-  );
-};
-
-// Renamed the main component back to 'App'
-const App = () => {
-  const { navigate } = useMockNavigation(); // Use mock navigation
-  const [openAuthModel, setOpenAuthModel] = useState(false);
-  const [currentPage, setCurrentPage] = useState("Login");
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const handleCTA = () => {
-    // In a real app: navigate("/dashboard");
-    console.log("Navigating to Dashboard (Mock)");
-    setOpenAuthModel(true); // Direct to auth for the demo
-  };
-
-  return (
-    <div className="min-h-screen flex flex-col bg-white font-sans text-gray-900">
-      <AuthModal
-        isOpen={openAuthModel}
-        onClose={() => setOpenAuthModel(false)}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-      />
-
-      {/* Header (Sticky and professional) */}
-      <header className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-4">
-          <div className="text-2xl font-bold text-indigo-700 tracking-tight">
-            InterviewPrep<span className="text-gray-900">AI</span>
-          </div>
-
-          <nav className="hidden md:flex space-x-8 items-center">
-            <a href="#" className="text-gray-600 hover:text-indigo-600 transition font-medium">Features</a>
-            <a href="#" className="text-gray-600 hover:text-indigo-600 transition font-medium">Pricing</a>
-            <a href="#" className="text-gray-600 hover:text-indigo-600 transition font-medium">Testimonials</a>
-            <button
-              className="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/30"
-              onClick={() => {
-                setCurrentPage("Login");
-                setOpenAuthModel(true);
-              }}
-            >
-              <span className="flex items-center"><LogIn className="w-5 h-5 mr-2" /> Log In</span>
-            </button>
+          <nav className="hidden md:flex items-center space-x-8 text-gray-700 font-medium">
+            <Link to="/login" className="hover:text-indigo-600">Login</Link>
+            <Link to="/signup" className="hover:text-indigo-600">Sign Up</Link>
           </nav>
 
+          {/* Mobile Menu Toggle */}
           <button
             className="md:hidden p-2 rounded-lg hover:bg-gray-100"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle Menu"
+            onClick={() => setMobileMenu(!mobileMenu)}
           >
-            <Menu className="w-6 h-6 text-gray-900" />
+            {mobileMenu ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
         {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-100 pb-4">
-            <div className="flex flex-col space-y-2 px-4">
-                <a href="#" className="text-gray-700 hover:text-indigo-600 py-2 border-b border-gray-100">Features</a>
-                <a href="#" className="text-gray-700 hover:text-indigo-600 py-2 border-b border-gray-100">Pricing</a>
-                <a href="#" className="text-gray-700 hover:text-indigo-600 py-2 mb-2">Testimonials</a>
-                <button
-                className="w-full py-2 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-all"
-                onClick={() => {
-                    setCurrentPage("Login");
-                    setOpenAuthModel(true);
-                    setIsMobileMenuOpen(false);
-                }}
-                >
-                <span className="flex items-center justify-center"><LogIn className="w-5 h-5 mr-2" /> Log In</span>
-                </button>
-            </div>
+        {mobileMenu && (
+          <div className="md:hidden bg-white border-t shadow-sm py-4 px-4 flex flex-col space-y-3">
+            <Link
+              to="/login"
+              onClick={() => setMobileMenu(false)}
+              className="text-gray-800 py-2 border-b"
+            >
+              Login
+            </Link>
+            <Link
+              to="/signup"
+              onClick={() => setMobileMenu(false)}
+              className="text-gray-800 py-2 border-b"
+            >
+              Sign Up
+            </Link>
           </div>
         )}
       </header>
 
-      <main>
-        {/* Hero Section (Dark, contrast, and engaging) */}
-        <section className="bg-gray-900 text-white pt-20 pb-28 md:pt-32 md:pb-40 overflow-hidden relative">
-          {/* Subtle background glow effect for futuristic look */}
-          <div className="absolute top-0 left-0 w-96 h-96 bg-indigo-500 opacity-20 blur-3xl rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-teal-500 opacity-15 blur-3xl rounded-full transform translate-x-1/2 translate-y-1/2"></div>
+      {/* Hero Section */}
+      <section className="bg-gray-900 text-white pt-20 pb-32 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-indigo-500 opacity-20 blur-3xl rounded-full -translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-teal-400 opacity-20 blur-3xl rounded-full translate-x-1/2 translate-y-1/2" />
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-12">
-              <div className="max-w-2xl text-center md:text-left">
-                <h1 className="text-5xl sm:text-6xl font-extrabold leading-snug">
-                  Master Any Interview with <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-teal-300">Intelligent Coaching</span>
-                </h1>
-                <p className="mt-6 text-xl text-gray-300">
-                  Step into your next job interview with unshakable confidence. Our AI provides personalized feedback, mock scenarios, and powerful analytics.
-                </p>
-                <button
-                  className="mt-10 px-10 py-4 bg-indigo-600 text-white text-xl font-bold rounded-xl hover:bg-indigo-500 transition-all transform hover:scale-[1.02] active:scale-100 shadow-xl shadow-indigo-600/40"
-                  onClick={handleCTA}
-                >
-                  Start Your Free Session
-                </button>
-                <p className="mt-3 text-sm text-gray-400">No credit card required.</p>
-              </div>
-
-              {/* Hero Image / Placeholder */}
-              <div className="mt-12 md:mt-0 w-full max-w-lg shadow-2xl rounded-3xl overflow-hidden border border-indigo-700/50">
-                <img
-                  src={HERO_IMAGE_URL}
-                  alt="AI assistant interacting with a user"
-                  className="w-full h-auto object-cover"
-                  onError={(e) => {
-                    // Fallback in case the placeholder service is down
-                    e.target.onerror = null;
-                    e.target.src = "https://placehold.co/800x450/4f46e5/ffffff?text=AI+Coach+Graphic";
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Features Section (Why Choose Us) */}
-        <section className="py-24 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <span className="text-indigo-600 font-semibold uppercase tracking-wider flex items-center justify-center mb-2">
-                <Sparkles className="w-5 h-5 mr-1" /> The Advantage
+        <div className="relative z-10 max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-12">
+          {/* Text */}
+          <div className="max-w-2xl text-center md:text-left">
+            <h1 className="text-5xl font-extrabold leading-tight">
+              Ace Every Interview With
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-teal-300 ml-2">
+                AI Coaching
               </span>
-              <h2 className="text-4xl font-extrabold text-gray-900">
-                Level Up Your Interview Game
-              </h2>
-              <p className="mt-4 text-xl text-gray-600 max-w-2xl mx-auto">
-                Our platform integrates cutting-edge AI to simulate real-world interviews and deliver actionable insights you won't find anywhere else.
-              </p>
-            </div>
+            </h1>
+            <p className="mt-6 text-xl text-gray-300">
+              Practice, analyze, and improve with personalized AI-powered interview training.
+            </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {APP_FEATURES.map((feature, index) => (
-                <div
-                  key={index}
-                  className="p-6 bg-gray-50 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border-t-4 border-indigo-500"
-                >
-                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-50/50 mb-4">
-                    {feature.icon}
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>
-                  <p className="text-gray-600">{feature.description}</p>
-                </div>
-              ))}
-            </div>
+            <button
+              onClick={() => navigate("/login")}
+              className="mt-10 px-10 py-4 bg-indigo-600 text-white text-lg font-semibold rounded-xl hover:bg-indigo-500 transition shadow-lg flex items-center gap-2 mx-auto md:mx-0"
+            >
+              <LogIn className="w-5 h-5" /> Start Practicing
+            </button>
+            <p className="text-gray-400 text-sm mt-2">No credit card required.</p>
           </div>
-        </section>
-      </main>
+
+          {/* Hero Image */}
+          <div className="shadow-2xl rounded-3xl overflow-hidden border border-indigo-700/40 max-w-lg w-full">
+            <img
+              src={HERO_IMAGE_URL}
+              alt="AI Interview Coach"
+              className="w-full object-cover"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-4xl font-extrabold text-center text-gray-900">Why Choose Us?</h2>
+          <p className="mt-4 text-center text-gray-600 max-w-2xl mx-auto text-lg">
+            Our AI-powered platform simulates real interviews and helps you master every round.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mt-16">
+            {FEATURES.map((f, index) => (
+              <div
+                key={index}
+                className="p-6 bg-gray-50 rounded-2xl shadow-md hover:shadow-xl transition border-t-4 border-indigo-500 text-center"
+              >
+                <div className="flex justify-center mb-4">{f.icon}</div>
+                <h3 className="font-bold text-xl text-gray-900 mb-2">{f.title}</h3>
+                <p className="text-gray-600 text-sm">{f.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-lg font-bold mb-2">InterviewPrepAI</p>
-          <p className="text-gray-400">© 2025 All rights reserved. | Built for future success.</p>
-        </div>
+      <footer className="bg-gray-900 text-white py-10 text-center mt-10">
+        <p className="text-lg font-bold mb-2">InterviewPrepAI</p>
+        <p className="text-gray-400">© {new Date().getFullYear()} All rights reserved.</p>
       </footer>
     </div>
   );
 };
 
-export default App;
+export default LandingPage;

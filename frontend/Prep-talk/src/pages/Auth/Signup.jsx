@@ -1,35 +1,67 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import Button from '../../components/Button';
-import Input from '../../components/Inputs/Input';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Button from "../../components/Button";
+import Input from "../../components/Inputs/Input";
+import axiosInstance from "../../utils/axiosInstance";
+import { API_PATHS } from "../../utils/apiPaths";
 
 function Signup() {
+  const navigate = useNavigate();
+  const [error, setError] = useState("");
+
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
 
   const handleChange = (e) => {
+    setError("");
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle signup logic here
-    console.log('Signup data:', formData);
+
+    // Password validation
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    try {
+      const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER, {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+      });
+
+      const token = response.data?.token;
+
+      if (token) {
+        localStorage.setItem("token", token);
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          "Something went wrong. Please try again."
+      );
+    }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <div className="auth-header">
-          <h1 className="auth-title">Create Account</h1>
-          <p className="auth-subtitle">Join PrepTalk to start your interview prep</p>
+    <div className="auth-container flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="auth-card bg-white p-10 rounded-2xl shadow-xl w-full max-w-md">
+        <div className="auth-header text-center mb-6">
+          <h1 className="auth-title text-3xl font-bold">Create Account</h1>
+          <p className="auth-subtitle text-gray-500">
+            Join PrepTalk to start your interview prep
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
@@ -39,8 +71,8 @@ function Signup() {
             name="name"
             placeholder="Enter your full name"
             value={formData.name}
-            onChange={handleChange}
             required
+            onChange={handleChange}
           />
 
           <Input
@@ -49,8 +81,8 @@ function Signup() {
             name="email"
             placeholder="Enter your email"
             value={formData.email}
-            onChange={handleChange}
             required
+            onChange={handleChange}
           />
 
           <Input
@@ -59,8 +91,8 @@ function Signup() {
             name="password"
             placeholder="Create a password"
             value={formData.password}
-            onChange={handleChange}
             required
+            onChange={handleChange}
           />
 
           <Input
@@ -69,19 +101,23 @@ function Signup() {
             name="confirmPassword"
             placeholder="Confirm your password"
             value={formData.confirmPassword}
-            onChange={handleChange}
             required
+            onChange={handleChange}
           />
 
-          <Button type="submit" size="large" className="btn-full" style={{ marginBottom: '24px' }}>
+          {error && (
+            <p className="text-red-500 text-sm mb-3 font-medium">{error}</p>
+          )}
+
+          <Button type="submit" className="btn-full mb-6">
             Sign Up
           </Button>
         </form>
 
-        <div className="auth-footer">
-          <p className="auth-footer-text">
-            Already have an account?{' '}
-            <Link to="/login" className="auth-footer-link">
+        <div className="auth-footer text-center">
+          <p className="auth-footer-text text-gray-600">
+            Already have an account?{" "}
+            <Link to="/login" className="text-indigo-600 font-medium">
               Sign in
             </Link>
           </p>
