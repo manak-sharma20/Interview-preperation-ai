@@ -120,6 +120,8 @@ All colors MUST be HSL.
   transition: all 0.2s ease;
   outline: none;
   font-family: inherit;
+  margin-right: 12px;
+  
 }
 
 .btn-primary {

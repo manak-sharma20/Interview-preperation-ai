@@ -24,6 +24,8 @@ const CreateSession = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("BASE_URL:", axiosInstance.defaults.baseURL);
+
     setLoading(true);
     try {
       const payload = {
