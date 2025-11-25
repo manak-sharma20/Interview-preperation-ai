@@ -3,47 +3,86 @@ const { conceptExplainPrompt, questionAnswerPrompt } = require("../utils/prompts
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// ---- Utility: Safely extract JSON from AI response ---- //
+/** -------------------------------------------------------
+ * SAFE JSON EXTRACTOR — bulletproof against AI formatting
+ * ------------------------------------------------------- */
 function extractJSON(rawText) {
   try {
-    // Remove markdown fences
     let clean = rawText
       .replace(/```json/gi, "")
       .replace(/```/g, "")
-      .replace(/^\s*Here is.*?:/gi, "") 
-      .replace(/^\s*Below is.*?:/gi, "")
+      .replace(/Here is.*?:/gi, "")
+      .replace(/Below is.*?:/gi, "")
+      .replace(/Output:/gi, "")
+      .replace(/Response:/gi, "")
       .trim();
 
-    // Attempt direct JSON parse
+    // Gemini sometimes returns JSON with trailing commas
+    clean = clean.replace(/,(\s*[}\]])/g, "$1");
+
     return JSON.parse(clean);
   } catch (err) {
-    console.error("❌ JSON parsing failed. Raw text:", rawText);
-    return { error: "Invalid AI JSON format", rawText };
+    console.error("❌ JSON Parse FAILED:");
+    console.error("RAW TEXT:", rawText);
+    return null;
   }
 }
 
-// ---- Generate Interview Questions ---- //
+/** -------------------------------------------------------
+ * Normalize Gemini output → ALWAYS return [{ id, text }]
+ * ------------------------------------------------------- */
+function normalizeQuestions(list) {
+  if (!Array.isArray(list)) return [];
+
+  return list.map((q, i) => ({
+    id: q.id || i + 1,
+    text: q.text || q.question || "Untitled question"
+  }));
+}
+
+/** -------------------------------------------------------
+ * Generate Interview Questions
+ * ------------------------------------------------------- */
 const generateInterviewQuestions = async (req, res) => {
   try {
     const { role, experience, topicsToFocus, numberOfQuestions } = req.body;
 
     if (!role || !experience || !topicsToFocus || !numberOfQuestions) {
       return res.status(400).json({
-        message: "All fields are required: role, experience, topicsToFocus, numberOfQuestions",
+        message:
+          "Missing fields: role, experience, topicsToFocus, numberOfQuestions",
       });
     }
 
-    const prompt = questionAnswerPrompt(role, experience, topicsToFocus, numberOfQuestions);
+    const prompt = questionAnswerPrompt(
+      role,
+      experience,
+      topicsToFocus,
+      numberOfQuestions
+    );
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
+    });
+
     const result = await model.generateContent(prompt);
     const rawText = result.response.text();
 
-    const data = extractJSON(rawText);
+    let json = extractJSON(rawText);
 
-    return res.status(200).json(data);
+    if (!json) {
+      return res.status(500).json({
+        message: "AI returned invalid format. Check console logs.",
+        rawAI: rawText,
+      });
+    }
+
+    const normalized = normalizeQuestions(json);
+
+    return res.status(200).json(normalized);
   } catch (error) {
-    console.error("Interview generation error:", error.message);
+    console.error("🔥 GEMINI ERROR:", error);
+
     return res.status(500).json({
       message: "Failed to generate interview questions",
       error: error.message,
@@ -51,26 +90,41 @@ const generateInterviewQuestions = async (req, res) => {
   }
 };
 
-// ---- Generate Concept Explanation ---- //
+/** -------------------------------------------------------
+ * Generate Concept Explanation
+ * ------------------------------------------------------- */
 const generateConceptExplaination = async (req, res) => {
   try {
     const { question } = req.body;
 
     if (!question) {
-      return res.status(400).json({ message: "Question field is required" });
+      return res.status(400).json({
+        message: "Question field is required",
+      });
     }
 
     const prompt = conceptExplainPrompt(question);
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
+    });
+
     const result = await model.generateContent(prompt);
     const rawText = result.response.text();
 
-    const data = extractJSON(rawText);
+    let json = extractJSON(rawText);
 
-    return res.status(200).json(data);
+    if (!json) {
+      return res.status(500).json({
+        message: "Explaination: AI returned invalid JSON",
+        rawAI: rawText,
+      });
+    }
+
+    return res.status(200).json(json);
   } catch (error) {
-    console.error("Concept explanation error:", error.message);
+    console.error("🔥 GEMINI ERROR:", error);
+
     return res.status(500).json({
       message: "Failed to generate concept explanation",
       error: error.message,
@@ -78,4 +132,7 @@ const generateConceptExplaination = async (req, res) => {
   }
 };
 
-module.exports = { generateInterviewQuestions, generateConceptExplaination };
+module.exports = {
+  generateInterviewQuestions,
+  generateConceptExplaination,
+};

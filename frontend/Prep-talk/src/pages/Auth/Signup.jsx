@@ -27,7 +27,6 @@ function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Password validation
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -55,16 +54,19 @@ function Signup() {
   };
 
   return (
-    <div className="auth-container flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="auth-card bg-white p-10 rounded-2xl shadow-xl w-full max-w-md">
-        <div className="auth-header text-center mb-6">
-          <h1 className="auth-title text-3xl font-bold">Create Account</h1>
-          <p className="auth-subtitle text-gray-500">
-            Join PrepTalk to start your interview prep
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 px-4">
+      <div className="bg-white p-10 rounded-3xl shadow-xl w-full max-w-md border border-gray-100">
+        
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-extrabold text-gray-900">Create Account</h1>
+          <p className="text-gray-500 mt-1">
+            Join PrepTalk to start your interview journey
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="auth-form">
+        {/* Form */}
+        <form onSubmit={handleSubmit}>
           <Input
             label="Full Name"
             type="text"
@@ -106,18 +108,21 @@ function Signup() {
           />
 
           {error && (
-            <p className="text-red-500 text-sm mb-3 font-medium">{error}</p>
+            <p className="text-red-500 text-sm mb-4 text-center font-medium">
+              {error}
+            </p>
           )}
 
-          <Button type="submit" className="btn-full mb-6">
+          <Button type="submit" className="w-full mb-6">
             Sign Up
           </Button>
         </form>
 
-        <div className="auth-footer text-center">
-          <p className="auth-footer-text text-gray-600">
+        {/* Footer */}
+        <div className="text-center">
+          <p className="text-gray-600">
             Already have an account?{" "}
-            <Link to="/login" className="text-indigo-600 font-medium">
+            <Link to="/login" className="text-indigo-600 font-medium hover:underline">
               Sign in
             </Link>
           </p>

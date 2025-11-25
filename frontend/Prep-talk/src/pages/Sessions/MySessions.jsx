@@ -23,20 +23,60 @@ const MySessions = () => {
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4">Your Sessions</h2>
-      {loading ? <p>Loading...</p> : null}
-      <div className="grid gap-4">
-        {sessions.length === 0 && !loading && <p>No sessions yet — start one!</p>}
-        {sessions.map(s => (
-          <Link key={s._id} to={`/interview-prep/${s._id}`} className="bg-white p-4 rounded shadow hover:shadow-lg flex justify-between">
-            <div>
-              <h3 className="font-semibold">{s.role} — {s.experience}</h3>
-              <p className="text-sm text-gray-600">{s.topicsToFocus}</p>
-            </div>
-            <div className="text-sm text-gray-500">{new Date(s.createdAt).toLocaleString()}</div>
-          </Link>
-        ))}
+    <div className="min-h-screen bg-gray-50 pt-20 px-6">
+      <div className="max-w-5xl mx-auto">
+
+        {/* Header */}
+        <h2 className="text-3xl font-bold text-gray-900 mb-6">
+          Your Interview Sessions
+        </h2>
+
+        {/* Loading */}
+        {loading && (
+          <div className="text-gray-500 animate-pulse">Loading your sessions...</div>
+        )}
+
+        {/* No Sessions Case */}
+        {!loading && sessions.length === 0 && (
+          <div className="bg-white p-8 rounded-2xl shadow text-center text-gray-600 border">
+            You haven’t created any interview sessions yet.
+            <br />
+            <Link
+              to="/create-session"
+              className="text-indigo-600 font-semibold mt-2 inline-block"
+            >
+              Start a new session →
+            </Link>
+          </div>
+        )}
+
+        {/* Sessions List */}
+        <div className="grid gap-5 mt-4">
+          {sessions.map((s) => (
+            <Link
+              key={s._id}
+              to={`/interview-prep/${s._id}`}
+              className="bg-white p-6 rounded-2xl shadow-md border hover:shadow-xl transition duration-200 flex justify-between items-center group"
+            >
+              <div>
+                <h3 className="font-semibold text-xl text-gray-900 group-hover:text-indigo-600 transition">
+                  {s.role} — {s.experience}
+                </h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  {s.topicsToFocus}
+                </p>
+              </div>
+
+              <div className="text-sm text-gray-400">
+                {new Date(s.createdAt).toLocaleDateString()} <br />
+                <span className="opacity-80">
+                  {new Date(s.createdAt).toLocaleTimeString()}
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+
       </div>
     </div>
   );

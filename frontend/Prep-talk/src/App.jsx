@@ -15,6 +15,9 @@ import MySessions from "./pages/Sessions/MySessions";
 import QuestionBank from "./pages/QuestionBank/QuestionBank";
 import InterviewPrep from "./pages/Interview-prep/Interviewprep";
 import Analytics from "./pages/Analytics/Analytics";
+// at top of file with other imports
+import PracticeSession from "./pages/Sessions/PracticeSession";
+
 
 const App = () => {
   return (
@@ -32,6 +35,8 @@ const App = () => {
           <Route path="/question-bank" element={<ProtectedRoute><QuestionBank /></ProtectedRoute>} />
           <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
           <Route path="/interview-prep/:sessionId" element={<ProtectedRoute><InterviewPrep /></ProtectedRoute>} />
+          <Route path="/practice-session" element={<ProtectedRoute><PracticeSession /></ProtectedRoute>} />
+
         </Routes>
       </main>
 

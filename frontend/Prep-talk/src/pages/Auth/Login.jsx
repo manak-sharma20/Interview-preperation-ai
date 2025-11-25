@@ -3,25 +3,27 @@ import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
 
-// Reusable Input Component
 const Input = ({ label, ...props }) => {
   return (
-    <div className="mb-4">
-      <label className="block mb-1 text-sm font-medium">{label}</label>
+    <div className="mb-5">
+      <label className="block mb-1.5 text-sm font-medium text-gray-700">
+        {label}
+      </label>
       <input
         {...props}
-        className="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+        className="w-full p-3 border rounded-xl bg-gray-50 focus:bg-white transition-all outline-none 
+                   focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
       />
     </div>
   );
 };
 
-// Reusable Button Component
 const Button = ({ children, ...props }) => {
   return (
     <button
       {...props}
-      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition"
+      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 
+                 rounded-xl shadow-sm hover:shadow-md transition-all active:scale-[0.98]"
     >
       {children}
     </button>
@@ -62,16 +64,17 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-container flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="auth-card bg-white p-10 rounded-2xl shadow-xl w-full max-w-md">
-        <div className="auth-header text-center mb-6">
-          <h1 className="auth-title text-3xl font-bold">Welcome Back</h1>
-          <p className="auth-subtitle text-gray-500">
-            Sign in to your PrepTalk account
-          </p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 px-4">
+      <div className="bg-white p-10 rounded-3xl shadow-xl w-full max-w-md border border-gray-100">
+
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-extrabold text-gray-900">Welcome Back 👋</h1>
+          <p className="text-gray-500 mt-1">Sign in to continue with PrepTalk</p>
         </div>
 
-        <form onSubmit={handleLogin} className="auth-form">
+        {/* Form */}
+        <form onSubmit={handleLogin}>
           <Input
             label="Email"
             type="email"
@@ -90,10 +93,15 @@ const Login = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+          {error && (
+            <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
+          )}
 
           <div className="text-right mb-4">
-            <Link to="/forgot-password" className="text-indigo-600 text-sm">
+            <Link
+              to="/forgot-password"
+              className="text-indigo-600 text-sm hover:underline"
+            >
               Forgot your password?
             </Link>
           </div>
@@ -101,11 +109,15 @@ const Login = () => {
           <Button type="submit">Sign In</Button>
         </form>
 
-        <div className="auth-footer text-center mt-6">
-          <p className="auth-footer-text text-gray-600">
+        {/* Footer */}
+        <div className="text-center mt-6">
+          <p className="text-gray-600">
             Don’t have an account?{" "}
-            <Link to="/signUp" className="text-indigo-600 font-medium">
-              Sign up
+            <Link
+              to="/signUp"
+              className="text-indigo-600 font-medium hover:underline"
+            >
+              Create account
             </Link>
           </p>
         </div>

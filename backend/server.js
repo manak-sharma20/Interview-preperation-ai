@@ -10,6 +10,7 @@ const authRoutes = require("./Routes/authRoutes");
 const sessionRoutes = require("./Routes/sessionRoutes");
 const questionRoutes = require("./Routes/questionRoutes");
 const aiRoutes = require("./Routes/aiRoutes");
+const interviewRoutes = require("./Routes/interview");
 
 const app = express();
 
@@ -19,10 +20,12 @@ connectDB();
 // ---------------- GLOBAL MIDDLEWARE ---------------- //
 app.use(express.json());
 
-// ---------------- GLOBAL CORS FIX ---------------- //
+// ---------------- GLOBAL CORS ---------------- //
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+
 app.use(
   cors({
-    origin: "http://localhost:5173", // frontend port
+    origin: FRONTEND_URL,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -37,6 +40,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/questions", questionRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/interview", interviewRoutes); // NEW
 
 // ---------------- HEALTH CHECK ---------------- //
 app.get("/", (req, res) => {
@@ -44,9 +48,9 @@ app.get("/", (req, res) => {
 });
 
 // ---------------- START SERVER ---------------- //
-const PORT = 8000;
-
+const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
   console.log(`\n🚀 PrepTalk server running at: http://localhost:${PORT}`);
+  console.log(`🔗 Allowed frontend: ${FRONTEND_URL}`);
 });
