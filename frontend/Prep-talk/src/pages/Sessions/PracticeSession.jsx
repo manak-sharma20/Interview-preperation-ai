@@ -139,7 +139,7 @@ export default function PracticeSession() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-white">
+            <h1 className="text-4xl font-bold">
               Practice Session
             </h1>
             {questions.length > 0 && started && (
@@ -157,7 +157,7 @@ export default function PracticeSession() {
             </button>
             <button 
               onClick={fetchAllFromServer} 
-              className="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg transition-all font-medium"
+              className="px-4 py-2.5 text-sm bg-slate-700 hover:bg-slate-600 rounded-lg transition-all font-medium"
               disabled={loadingQuestions}
             >
               {loadingQuestions ? "⏳ Syncing..." : "🔄 Sync"}
@@ -194,7 +194,7 @@ export default function PracticeSession() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h2 className="text-3xl font-bold mb-3 text-white">
+              <h2 className="text-3xl font-bold mb-3">
                 Ready to Practice?
               </h2>
             </div>

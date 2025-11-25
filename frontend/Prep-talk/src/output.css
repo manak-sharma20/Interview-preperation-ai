@@ -1111,36 +1111,44 @@ body {
 .text-2xl {
   font-size: 1.5rem;
   line-height: 2rem;
+  color: black;
+  
 }
 
 .text-3xl {
   font-size: 1.875rem;
   line-height: 2.25rem;
+  color: black;
 }
 
 .text-4xl {
   font-size: 2.25rem;
   line-height: 2.5rem;
+  color: black;
 }
 
 .text-5xl {
   font-size: 3rem;
   line-height: 1;
+  color: black;
 }
 
 .text-lg {
   font-size: 1.125rem;
   line-height: 1.75rem;
+  color: black;
 }
 
 .text-sm {
   font-size: 0.875rem;
   line-height: 1.25rem;
+  color: black;
 }
 
 .text-xl {
   font-size: 1.25rem;
   line-height: 1.75rem;
+  color: black;
 }
 
 .font-bold {
