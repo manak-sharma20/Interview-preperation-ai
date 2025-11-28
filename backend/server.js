@@ -20,7 +20,7 @@ connectDB();
 // ---------------- GLOBAL MIDDLEWARE ---------------- //
 app.use(express.json());
 
-// ---------------- GLOBAL CORS ---------------- //
+// ---------------- CORS CONFIG ---------------- //
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
@@ -30,19 +30,19 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: allowedOrigins,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
 
-// Handle preflight requests
-app.options("*", cors());
+// Fix "Missing parameter name at index ..." error (Express v5)
+app.options("(.*)", cors());
 
 // ---------------- STATIC FILES ---------------- //
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// ---------------- ROUTES ---------------- //
+// ---------------- API ROUTES ---------------- //
 app.use("/api/auth", authRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/questions", questionRoutes);
@@ -54,7 +54,7 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "OK", message: "PrepTalk API is running" });
 });
 
-// ---------------- SERVE FRONTEND (Optional for Local Build) ---------------- //
+// ---------------- SERVE FRONTEND (Optional for local preview) ---------------- //
 app.use(express.static(path.join(__dirname, "../frontend/Prep-talk/dist")));
 
 app.get(/.*/, (req, res) => {
@@ -65,6 +65,6 @@ app.get(/.*/, (req, res) => {
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
-  console.log(`\n🚀 PrepTalk server running at: http://localhost:${PORT}`);
-  console.log(`🔗 Allowed frontend: ${process.env.FRONTEND_URL}`);
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`Frontend allowed: ${process.env.FRONTEND_URL}`);
 });
