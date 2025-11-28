@@ -14,13 +14,13 @@ const interviewRoutes = require("./Routes/interview");
 
 const app = express();
 
-// ---------------- CONNECT DATABASE ---------------- //
+// Connect DB
 connectDB();
 
-// ---------------- GLOBAL MIDDLEWARE ---------------- //
+// JSON parser
 app.use(express.json());
 
-// ---------------- CORS CONFIG ---------------- //
+// ---------------- CORS ----------------
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
@@ -30,41 +30,32 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: allowedOrigins,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
 
-// Fix "Missing parameter name at index ..." error (Express v5)
-app.options("(.*)", cors());
-
-// ---------------- STATIC FILES ---------------- //
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
-// ---------------- API ROUTES ---------------- //
+// ---------------- ROUTES ----------------
 app.use("/api/auth", authRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/questions", questionRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/interview", interviewRoutes);
 
-// ---------------- HEALTH CHECK ---------------- //
+// Test / Health check route
 app.get("/api/health", (req, res) => {
-  res.json({ status: "OK", message: "PrepTalk API is running" });
+  res.json({ status: "ok", message: "Backend running" });
 });
 
-// ---------------- SERVE FRONTEND (Optional for local preview) ---------------- //
+// ---------------- SERVE FRONTEND (EXPRESS v5 FIX) ----------------
 app.use(express.static(path.join(__dirname, "../frontend/Prep-talk/dist")));
 
 app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/Prep-talk/dist/index.html"));
 });
 
-// ---------------- START SERVER ---------------- //
+// ---------------- START SERVER ----------------
 const PORT = process.env.PORT || 8080;
-
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`Frontend allowed: ${process.env.FRONTEND_URL}`);
+  console.log(`🌍 Allowed Frontend: ${process.env.FRONTEND_URL}`);
 });
