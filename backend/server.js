@@ -21,11 +21,25 @@ connectDB();
 app.use(express.json());
 
 // ---------------- GLOBAL CORS ---------------- //
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+// ---------------- GLOBAL CORS ---------------- //
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
 
 app.use(
   cors({
-    origin: FRONTEND_URL,
+    origin: function (origin, callback) {
+      // allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg =
+          "The CORS policy for this site does not allow access from the specified Origin.";
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -43,8 +57,15 @@ app.use("/api/ai", aiRoutes);
 app.use("/api/interview", interviewRoutes); // NEW
 
 // ---------------- HEALTH CHECK ---------------- //
-app.get("/", (req, res) => {
+app.get("/api/health", (req, res) => {
   res.send("PrepTalk API is running...");
+});
+
+// ---------------- SERVE FRONTEND ---------------- //
+app.use(express.static(path.join(__dirname, "../frontend/Prep-talk/dist")));
+
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/Prep-talk/dist/index.html"));
 });
 
 // ---------------- START SERVER ---------------- //
@@ -52,5 +73,5 @@ const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
   console.log(`\n🚀 PrepTalk server running at: http://localhost:${PORT}`);
-  console.log(`🔗 Allowed frontend: ${FRONTEND_URL}`);
+  console.log(`🔗 Allowed frontend: ${process.env.FRONTEND_URL}`);
 });

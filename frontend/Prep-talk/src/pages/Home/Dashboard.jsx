@@ -1,100 +1,79 @@
 import React from "react";
-import { Sparkles, BookOpen, ClipboardList, Activity } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import {
+  PlusCircle,
+  BookOpen,
+  BarChart2,
+  Activity,
+  ArrowRight,
+} from "lucide-react";
 
-function Dashboard() {
+const Dashboard = () => {
   const navigate = useNavigate();
 
+  const stats = [
+    {
+      title: "AI Sessions",
+      value: "12",
+      icon: <Activity className="w-5 h-5 text-indigo-600" />,
+      link: "/sessions",
+    },
+    {
+      title: "Questions Solved",
+      value: "45",
+      icon: <BookOpen className="w-5 h-5 text-indigo-600" />,
+      link: "/question-bank",
+    },
+    {
+      title: "Avg. Score",
+      value: "82%",
+      icon: <BarChart2 className="w-5 h-5 text-indigo-600" />,
+      link: null, // Static stat
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pt-24 pb-12 px-6">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
+            <p className="text-gray-500 mt-1">Track your progress and start new sessions.</p>
+          </div>
+          <button
+            onClick={() => navigate("/create-session")}
+            className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold shadow-sm hover:shadow transition-all active:scale-[0.99]"
+          >
+            <PlusCircle className="w-5 h-5" />
+            New Session
+          </button>
+        </div>
 
-      {/* Top Banner */}
-      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white py-16 px-8 shadow-xl">
-        <h1 className="text-4xl font-extrabold tracking-tight">Welcome back 👋</h1>
-        <p className="text-lg opacity-90 mt-1">
-          Continue your interview preparation journey with PrepTalk.
-        </p>
-      </div>
-
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-6 -mt-10 relative z-10">
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7 mt-6">
-
-          {[
-            {
-              title: "AI Sessions",
-              subtitle: "Practice interviews completed",
-              value: 12,
-              icon: <Sparkles className="w-8 h-8 text-indigo-600" />,
-              link: "/my-sessions",
-            },
-            {
-              title: "Saved Questions",
-              subtitle: "Your personal library",
-              value: 34,
-              icon: <BookOpen className="w-8 h-8 text-indigo-600" />,
-              link: "/question-bank",
-            },
-            {
-              title: "Mock Tests",
-              subtitle: "Completed assessments",
-              value: 5,
-              icon: <ClipboardList className="w-8 h-8 text-indigo-600" />,
-              link: "/mock-tests",
-            },
-            {
-              title: "Performance Score",
-              subtitle: "Overall improvement",
-              value: "82%",
-              icon: <Activity className="w-8 h-8 text-indigo-600" />,
-            },
-          ].map((card, idx) => (
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          {stats.map((stat, idx) => (
             <div
               key={idx}
-              onClick={() => card.link && navigate(card.link)}
-              className="bg-white p-7 rounded-3xl border shadow-sm hover:shadow-xl 
-                         cursor-pointer transition-all duration-300 hover:-translate-y-1"
+              onClick={() => stat.link && navigate(stat.link)}
+              className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm transition-all duration-200 
+                ${stat.link
+                  ? "cursor-pointer hover:shadow-md hover:border-indigo-100 group"
+                  : "cursor-default"
+                }`}
             >
-              <div className="mb-4">{card.icon}</div>
-              <h2 className="text-xl font-semibold">{card.title}</h2>
-              <p className="text-gray-500 mt-1 text-sm">{card.subtitle}</p>
-              <p className="text-4xl font-bold mt-3">{card.value}</p>
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-2 bg-indigo-50 rounded-lg group-hover:bg-indigo-100 transition-colors">
+                  {stat.icon}
+                </div>
+                {stat.link && <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-indigo-500 transition-colors" />}
+              </div>
+              <p className="text-sm font-medium text-gray-500">{stat.title}</p>
+              <p className="text-3xl font-bold text-gray-900 mt-1">{stat.value}</p>
             </div>
           ))}
         </div>
 
-        {/* Quick Actions */}
-        <div className="mt-14">
-          <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <button
-              onClick={() => navigate("/create-session")}
-              className="bg-indigo-600 text-white py-4 px-6 rounded-2xl 
-                         shadow hover:bg-indigo-700 hover:shadow-lg transition-all font-medium"
-            >
-              Start AI Interview
-            </button>
-
-            <button
-              onClick={() => navigate("/question-bank")}
-              className="bg-white border py-4 px-6 rounded-2xl shadow hover:shadow-lg 
-                         transition-all font-medium"
-            >
-              View Question Bank
-            </button>
-
-            <button
-              onClick={() => navigate("/analytics")}
-              className="bg-white border py-4 px-6 rounded-2xl shadow hover:shadow-lg 
-                         transition-all font-medium"
-            >
-              Analyze Performance
-            </button>
-          </div>
-        </div>
 
         {/* Recent Activity */}
         <div className="mt-14 mb-20">

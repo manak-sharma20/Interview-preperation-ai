@@ -22,13 +22,10 @@ export default function useSpeechToText() {
 
       recognitionRef.current.onresult = (event) => {
         let text = "";
-        for (let i = event.resultIndex; i < event.results.length; i++) {
+        for (let i = 0; i < event.results.length; i++) {
           text += event.results[i][0].transcript;
         }
-        setTranscript((prev) => {
-          const combined = text;
-          return combined;
-        });
+        setTranscript(text);
       };
 
       recognitionRef.current.onerror = () => {
@@ -42,31 +39,38 @@ export default function useSpeechToText() {
     return () => {
       try {
         recognitionRef.current?.stop();
-      } catch (e) {}
+      } catch (e) { }
     };
   }, []);
 
   const start = async () => {
+    console.log("🎤 Starting speech recognition...");
     if (!supported) return alert("Speech recognition not supported in this browser.");
     try {
       if (navigator.permissions && navigator.permissions.query) {
         try {
           await navigator.mediaDevices.getUserMedia({ audio: true });
-        } catch (e) {}
+          console.log("🎤 Microphone permission granted");
+        } catch (e) {
+          console.error("🎤 Microphone permission error:", e);
+        }
       }
       setTranscript("");
       setListening(true);
       recognitionRef.current.start();
+      console.log("🎤 Recognition started");
     } catch (err) {
+      console.error("🎤 Start error:", err);
       setListening(false);
       alert("Unable to start microphone. Check permissions.");
     }
   };
 
   const stop = () => {
+    console.log("🎤 Stopping speech recognition...");
     try {
       recognitionRef.current.stop();
-    } catch (e) {}
+    } catch (e) { }
     setListening(false);
   };
 
