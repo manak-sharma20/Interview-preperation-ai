@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import useSpeechToText from "../../hooks/useSpeechToText";
 import API from "../../utils/axiosInstance";
+import { API_PATHS } from "../../utils/apiPaths";
 
 export default function QuestionCard({ question, onResult, onSave }) {
   const { supported, listening, transcript, start, stop, reset, setTranscript } =
@@ -21,7 +22,7 @@ export default function QuestionCard({ question, onResult, onSave }) {
         questionId: question?.id || question?._id || null,
         textAnswer: textAnswer.trim(),
       };
-      const res = await API.post("/interview/evaluate", payload);
+      const res = await API.post(API_PATHS.INTERVIEW.EVALUATE, payload);
       onResult(res.data);
     } catch (err) {
       console.error("Submit answer failed:", err);
@@ -38,7 +39,7 @@ export default function QuestionCard({ question, onResult, onSave }) {
         text: question?.text || question?.question || JSON.stringify(question),
         source: "practice-session",
       };
-      await API.post("/api/questions/add", payload);
+      await API.post(API_PATHS.QUESTION.ADD_TO_SESSION, payload);
       if (typeof onSave === "function") onSave();
       alert("Saved to Question Bank");
     } catch (err) {

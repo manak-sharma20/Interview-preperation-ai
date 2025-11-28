@@ -1,17 +1,16 @@
 import axios from "axios";
-import { BASE_URL } from "./apiPaths";
 
-const axiosInstance = axios.create({
-  baseURL: BASE_URL,
+const API = axios.create({
+  baseURL: import.meta.env.VITE_BASE_URL || "/api",
   timeout: 80000,
-  withCredentials: true, // 🔥 IMPORTANT for CORS
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Request interceptor
-axiosInstance.interceptors.request.use(
+// Request interceptor - Add JWT token to requests
+API.interceptors.request.use(
   async (config) => {
     const token = localStorage.getItem("token");
 
@@ -24,22 +23,23 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor
-axiosInstance.interceptors.response.use(
+// Response interceptor - Handle errors globally
+API.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
       if (error.response.status === 401) {
+        localStorage.removeItem("token");
         window.location.href = "/login";
       } else if (error.response.status === 500) {
         console.error("Server Error: ", error.response.data);
-      } else if (error.code === "ECONNABORTED") {
-        console.log("Request Timeout");
       }
+    } else if (error.code === "ECONNABORTED") {
+      console.log("Request Timeout");
     }
 
     return Promise.reject(error);
   }
 );
 
-export default axiosInstance;
+export default API;

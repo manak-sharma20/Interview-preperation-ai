@@ -1,6 +1,7 @@
 // src/pages/Sessions/CreateSession.jsx
 import React, { useState } from "react";
 import API from "../../utils/axiosInstance";
+import { API_PATHS } from "../../utils/apiPaths";
 import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -33,7 +34,7 @@ const CreateSession = () => {
 
     setLoading(true);
     try {
-      const res = await API.post("/api/ai/generate-questions", payload);
+      const res = await API.post(API_PATHS.AI.GENERATE_QUESTIONS, payload);
       console.log("AI RAW RESPONSE:", res.data);
 
 
@@ -42,7 +43,7 @@ const CreateSession = () => {
         "generatedQuestions",
         JSON.stringify(res.data.questions || res.data)
       );
-      
+
 
       // redirect to practice page
       navigate("/practice-session");

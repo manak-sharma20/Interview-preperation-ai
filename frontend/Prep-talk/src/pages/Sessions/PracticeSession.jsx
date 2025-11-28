@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import QuestionCard from "../../components/cards/QuestionCard";
 import API from "../../utils/axiosInstance";
+import { API_PATHS } from "../../utils/apiPaths";
 import { useNavigate } from "react-router-dom";
 
 export default function PracticeSession() {
@@ -104,7 +105,7 @@ export default function PracticeSession() {
     setLoadingQuestions(true);
     setError(null);
     try {
-      const res = await API.get("/api/sessions");
+      const res = await API.get(API_PATHS.SESSION.GET_ALL);
       console.log("Fetched sessions:", res.data);
       if (res.data?.questions && res.data.questions.length > 0) {
         setQuestions(res.data.questions);

@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axiosInstance from '../utils/axiosInstance';
+import { API_PATHS } from '../utils/apiPaths';
 
 export const UserContext = createContext();
 
@@ -12,7 +13,7 @@ export const UserProvider = ({ children }) => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          const response = await axiosInstance.get('/api/auth/profile');
+          const response = await axiosInstance.get(API_PATHS.AUTH.GET_PROFILE);
           setUser(response.data);
         } catch (error) {
           console.error('Failed to fetch user profile', error);

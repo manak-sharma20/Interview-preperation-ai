@@ -1,29 +1,32 @@
-export const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:8080/api";
-
+// API Path Constants
+// All paths are relative to the baseURL configured in axiosInstance.js
 
 export const API_PATHS = {
   AUTH: {
-    REGISTER: "/api/auth/register",
-    LOGIN: "/api/auth/login",
-    GET_PROFILE: "/api/auth/profile",
+    REGISTER: "/auth/register",
+    SIGNUP: "/auth/register",
+    LOGIN: "/auth/login",
+    GET_PROFILE: "/auth/profile",
   },
   IMAGE: {
-    UPLOAD_IMAGE: "/api/auth/upload-image",
+    UPLOAD_IMAGE: "/auth/upload-image",
   },
   AI: {
-    GENERATE_QUESTIONS: "/api/ai/generate-questions",
-    GENERATE_EXPLANATION: "/api/ai/generate-explanation",
+    GENERATE_QUESTIONS: "/ai/generate-questions",
+    GENERATE_EXPLANATION: "/ai/generate-explanation",
   },
   SESSION: {
-    CREATE: "/api/sessions",
-    GET_ALL: "/api/sessions",
-    GET_ONE: (id) => `/api/sessions/${id}`,
-    DELETE: (id) => `/api/sessions/${id}`,
+    CREATE: "/sessions",
+    GET_ALL: "/sessions",
+    GET_ONE: (id) => `/sessions/${id}`,
+    DELETE: (id) => `/sessions/${id}`,
   },
-  
   QUESTION: {
-    ADD_TO_SESSION: "/api/questions/add",
-    PIN: (id) => `/api/questions/${id}/pin`,
-    UPDATE_NOTE: (id) => `/api/questions/${id}/note`,
+    ADD_TO_SESSION: "/questions/add",
+    PIN: (id) => `/questions/${id}/pin`,
+    UPDATE_NOTE: (id) => `/questions/${id}/note`,
+  },
+  INTERVIEW: {
+    EVALUATE: "/interview/evaluate",
   },
 };
