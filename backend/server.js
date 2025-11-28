@@ -29,22 +29,15 @@ const allowedOrigins = [
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps, curl, or same-origin requests)
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.indexOf(origin) !== -1) {
-        return callback(null, true);
-      }
-
-      const msg = "The CORS policy for this site does not allow access from the specified Origin.";
-      return callback(new Error(msg), false);
-    },
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
+
+// Handle preflight requests
+app.options("*", cors());
 
 // ---------------- STATIC FILES ---------------- //
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -54,14 +47,14 @@ app.use("/api/auth", authRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/questions", questionRoutes);
 app.use("/api/ai", aiRoutes);
-app.use("/api/interview", interviewRoutes); // NEW
+app.use("/api/interview", interviewRoutes);
 
 // ---------------- HEALTH CHECK ---------------- //
 app.get("/api/health", (req, res) => {
-  res.send("PrepTalk API is running...");
+  res.json({ status: "OK", message: "PrepTalk API is running" });
 });
 
-// ---------------- SERVE FRONTEND ---------------- //
+// ---------------- SERVE FRONTEND (Optional for Local Build) ---------------- //
 app.use(express.static(path.join(__dirname, "../frontend/Prep-talk/dist")));
 
 app.get(/.*/, (req, res) => {
