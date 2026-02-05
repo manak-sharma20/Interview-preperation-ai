@@ -8,7 +8,7 @@ Interview Prep AI is a MERN stack web application designed to help users prepare
 
 📊 Progress tracking — evaluate strengths and weaknesses.
 
-🎙️ Voice/Chat-based mock interviews (optional future enhancement).
+ Voice/Chat-based mock interviews (optional future enhancement).
 
 ⚙️ Admin dashboard — manage users and question sets.
 
